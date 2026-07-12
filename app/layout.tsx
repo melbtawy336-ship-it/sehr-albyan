@@ -1,10 +1,9 @@
-import "./globals.css";
+import type { Metadata } from "next";
 import { Cairo, Amiri } from "next/font/google";
+import "./globals.css";
 
-// تهيئة الخطوط بالطريقة الرسمية لـ Next.js لضمان أسرع أداء وسيو ممتاز
 const cairo = Cairo({
-  subsets: ["arabic", "latin"],
-  weight: ["300", "400", "700"],
+  subsets: ["arabic"],
   variable: "--font-cairo",
   display: "swap",
 });
@@ -16,64 +15,72 @@ const amiri = Amiri({
   display: "swap",
 });
 
-export const metadata = {
-  title: {
-    default: "سِحْرُ البَيَان | الأستاذ محمد البطاوي",
-    template: "%s | سِحْرُ البَيَان"
-  },
-  description: "تعليم اللغة العربية لجميع المراحل الأزهرية والعامة، وتأسيس النحو والبلاغة والأدب بأحدث الطرق التعليمية مع الأستاذ محمد البطاوي.",
-  keywords: ["مدرس لغة عربية", "معلم لغة عربية أزهري", "سحر البيان", "محمد البطاوي", "نحو وبلاغة", "تأسيس لغة عربية", "شرح الآجرومية", "ألفية ابن مالك"],
+// إعدادات الـ SEO الفائقة والميتا داتا الكاملة للمنصة
+export const metadata: Metadata = {
+  title: "منصة سحر البيان | الأستاذ محمد البطاوي لمعلم اللغة العربية والعلوم الشرعية",
+  description: "المنصة التعليمية الرائدة للأستاذ محمد البطاوي، متخصص في تدريس اللغة العربية والعلوم الشرعية وتأسيس طلاب المراحل الإعدادية والثانوية العامة والأزهرية بأسلوب تربوي حديث.",
+  keywords: ["سحر البيان", "محمد البطاوي", "لغة عربية", "علوم شرعية", "ثانوية أزهرية", "نحو", "بلاغة", "تأسيس لغة عربية"],
   authors: [{ name: "الأستاذ محمد البطاوي" }],
-  metadataBase: new URL("https://sehr-albayan.com"), // استبدله برابط موقعك الحقيقي لاحقاً لتفعيل الصور المصغرة
+  alternates: {
+    canonical: "https://sehr-albyan.vercel.app/",
+  },
   openGraph: {
-    title: "سِحْرُ البَيَان | الأستاذ محمد البطاوي",
-    description: "رحلة متميزة في تعلم اللغة العربية بأسلوب مبسط واحترافي لجميع المراحل الدراسية.",
-    type: "website",
+    title: "منصة سحر البيان | الأستاذ محمد البطاوي",
+    description: "تأسيس شامل ونواتج تعلم حقيقية في النحو والصرف والبلاغة والعلوم الشرعية للمرحلتين الإعدادية والثانوية.",
+    url: "https://sehr-albyan.vercel.app/",
+    siteName: "سحر البيان",
     locale: "ar_EG",
-    images: [
-      {
-        url: "/profile.png", // الصورة التي ستظهر عند مشاركة رابط الموقع على واتساب أو فيسبوك
-        width: 800,
-        height: 600,
-        alt: "الأستاذ محمد البطاوي - معلم لغة عربية",
-      },
-    ],
-  }
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "منصة سحر البيان | الأستاذ محمد البطاوي",
+    description: "تعلم اللغة العربية والعلوم الشرعية مع معلم أزهري متخصص.",
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  // بيانات السيو المنظمة المتقدمة (JSON-LD Schema) لتوثيق المؤسسة والمعلم لدى جوجل
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
-    "name": "سِحْرُ البَيَان",
-    "description": "تعليم اللغة العربية لجميع المراحل الأزهرية والعامة",
-    "url": "https://sehr-albayan.com", // استبدله برابط موقعك الحقيقي
-    "image": "https://sehr-albayan.com/profile.png",
-    "provider": {
+    "name": "منصة سحر البيان التعليمية",
+    "description": "منصة متخصصة في تدريس اللغة العربية والعلوم الشرعية للمراحل الإعدادية والثانوية.",
+    "url": "https://sehr-albyan.vercel.app/",
+    "logo": "https://sehr-albyan.vercel.app/favicon.ico",
+    "founder": {
       "@type": "Person",
       "name": "الأستاذ محمد البطاوي",
-      "jobTitle": "معلم لغة عربية ومحفظ قرآن كريم",
-      "worksFor": {
+      "jobTitle": "معلم لغة عربية وعلوم شرعية بالأزهر الشريف",
+      "alumniOf": {
         "@type": "EducationalOrganization",
         "name": "جامعة الأزهر الشريف"
       }
     },
-    "telephone": "+201123962871",
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "EG"
-    }
+    "knowsAbout": ["اللغة العربية", "النحو والصرف", "البلاغة العربية", "العلوم الشرعية الإسلامية"]
   };
 
   return (
     <html lang="ar" dir="rtl" className="scroll-smooth">
-      <body className={`${cairo.variable} ${amiri.variable} bg-[#FAF7F2] text-[#2C251E] font-cairo antialiased min-h-screen relative`}>
-        {/* حقن بيانات السيو المنظمة لعناكب بحث جوجل */}
+      <body
+        className={`${cairo.variable} ${amiri.variable} antialiased min-h-screen relative font-sans`}
+      >
+        {/* حقن السكيمـا الاحترافية لجوجل */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {children}
+        
+        {/* الطبقة المزخرفة خفيفة الظل الممتدة في الخلفية */}
+        <div className="absolute inset-0 arabic-pattern pointer-events-none z-0" />
+        
+        <div className="relative z-10">
+          {children}
+        </div>
       </body>
     </html>
   );
