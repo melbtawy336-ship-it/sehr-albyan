@@ -17,7 +17,7 @@ export default function HomePage() {
   ];
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen" dir="rtl">
       
       {/* 1. قسم البطل الاستقبالي (Hero Section) مع الرسالة التسويقية القوية */}
       <section className="relative pt-24 pb-20 flex flex-col items-center text-center px-4 max-w-4xl mx-auto z-10">
@@ -41,7 +41,7 @@ export default function HomePage() {
             احجز مقعدك الآن
           </a>
           <a 
-            href="https://wa.me/201017686851" // تأكد من رقم الواتساب الخاص بك هنا
+            href="https://wa.me/201123962871" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="w-full sm:w-auto px-8 py-4 bg-[#25D366] text-white font-cairo font-bold rounded-xl shadow-lg hover:bg-[#20ba56] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
@@ -76,7 +76,7 @@ export default function HomePage() {
             <h3 className="font-amiri text-3xl font-bold text-foreground mb-4">الأستاذ محمد البطاوي</h3>
             <p className="font-cairo text-gold font-bold mb-4">خريج جامعة الأزهر الشريف ومعلم العلوم العربية والشرعية</p>
             <p className="font-cairo text-foreground/80 leading-relaxed mb-4">
-              نؤمن في منصة "سحر البيان" أن لغة القرآن الكريم ليست مجرد قواعد جافة تُحفظ، بل هي ملكةٌ تُكتسب وتُتذوق. نسعى لتأسيس الطلاب وبناء مهاراتهم الإعرابية والبلاغية من الصفر وحتى التفوق في الامتحانات الوزارية والأزهرية.
+              نؤمن في منصة "سحر البيان" أن لغة القرآن الكريم ليست مجرد قواعد جافة تُحفظ, بل هي ملكةٌ تُكتسب وتُتذوق. نسعى لتأسيس الطلاب وبناء مهاراتهم الإعرابية والبلاغية من الصفر وحتى التفوق في الامتحانات الوزارية والأزهرية.
             </p>
             <ul className="font-cairo text-sm text-foreground/75 space-y-2">
               <li>✓ خبرة ممتدة في المناهج الدراسية الحديثة ونواتج التعلم.</li>
@@ -97,7 +97,7 @@ export default function HomePage() {
             {testimonials.map((t, idx) => (
               <div key={idx} className="bg-background p-6 rounded-2xl shadow-md border border-gold/10 flex flex-col justify-between">
                 <div>
-                  <div className="text-gold text-lg mb-3">⭐⭐⭐⭐ Ever</div>
+                  <div className="text-gold text-lg mb-3">⭐⭐⭐⭐⭐</div>
                   <p className="font-cairo text-foreground/80 text-sm leading-relaxed mb-4">"{t.text}"</p>
                 </div>
                 <span className="font-cairo text-xs font-bold text-foreground/60 block border-t border-foreground/5 pt-3">{t.name}</span>
