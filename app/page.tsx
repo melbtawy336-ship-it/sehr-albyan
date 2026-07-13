@@ -1,152 +1,179 @@
-"use client"; // تأكد أن هذا السطر هو أول سطر تماماً
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+// هيكل بيانات الأسئلة
+const quizQuestions = [
+  { q: "ما إعراب كلمة 'العلم' في جملة 'العلمُ نورٌ'؟", options: ["مبتدأ مرفوع", "خبر مرفوع", "فاعل مرفوع", "مفعول به"], correct: 0 },
+  { q: "نوع كلمة 'استغفار' من حيث المصدر:", options: ["خماسي", "سداسي", "رباعي", "ثلاثي"], correct: 1 },
+  { q: "أي من هذه الأفعال مبني؟", options: ["يكتبُ", "سعى", "يرسمان", "تذهبين"], correct: 1 },
+  { q: "ما إعراب الفاعل في 'جاء الحقُّ'؟", options: ["الحقُ", "جاء", "ضمير مستتر", "لا يوجد فاعل"], correct: 0 },
+  { q: "نوع المنادى في 'يا طالبًا اجتهد'؟", options: ["مضاف", "شبيه بالمضاف", "نكرة غير مقصودة", "نكرة مقصودة"], correct: 2 },
+  { q: "ما علامة جزم الفعل المضارع المعتل الآخر؟", options: ["السكون", "حذف النون", "حذف حرف العلة", "الفتحة"], correct: 2 },
+  { q: "الاسم المجرور بعد 'كأنّ' يعرب:", options: ["اسم كأن منصوب", "خبر كأن مرفوع", "مضاف إليه", "فاعل"], correct: 0 },
+  { q: "ما نوع 'الواو' في 'خرجتُ والشمسَ طالعةٌ'؟", options: ["واو العطف", "واو المعية", "واو الحال", "واو القسم"], correct: 2 },
+  { q: "الاسم الذي يقع بعد 'لولا' يعرب دائماً:", options: ["خبراً", "مبتدأ خبره محذوف", "مضافاً إليه", "مفعولاً به"], correct: 1 },
+  { q: "أي من الكلمات الآتية ممنوع من الصرف؟", options: ["كتاب", "مساجد", "قلم", "رجل"], correct: 1 },
+];
 
 export default function HomePage() {
   const phoneNumber = "201123962871";
   
-  // تعريف أنواع البيانات للمدخلات (TypeScript)
-  const [formData, setFormData] = useState({ 
-    name: '', 
-    phone: '', 
-    level: 'المرحلة الإعدادية' 
-  });
-  
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // States للاختبار
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+  const [studentName, setStudentName] = useState("");
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [archive, setArchive] = useState<{name: string, score: number}[]>([]);
 
-  const grammarians = [
-    "أبو الأسود الدؤلي", "نصر بن عاصم الليثي", "يحيى بن يعمر", "عبد الله بن أبي إسحاق الحضرمي",
-    "أبو عمرو بن العلاء", "عيسى بن عمر الثقفي", "الخليل بن أحمد الفراهيدي", "سيبويه",
-    "الأخفش الأوسط", "المازني", "المبرد", "الزجاج", "ابن السراج", "أبو علي الفارسي",
-    "ابن جني", "الزمخشري", "ابن مالك", "أبو حيان الأندلسي", "ابن هشام الأنصاري",
-    "خالد الأزهري", "محمد محيي الدين عبد الحميد"
-  ];
+  // تحميل الأرشيف من التخزين المحلي
+  useEffect(() => {
+    const savedResults = localStorage.getItem('sehrAlByanResults');
+    if (savedResults) setArchive(JSON.parse(savedResults));
+  }, []);
 
-  // إصلاح الخطأ: إضافة نوع الحدث (React.FormEvent)
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    setTimeout(() => {
-      const message = `السلام عليكم أستاذ محمد، أرغب في الحجز مع حضرتك.\nالاسم: ${formData.name}\nالهاتف: ${formData.phone}\nالمرحلة: ${formData.level}`;
-      window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
-      setIsSubmitting(false);
-    }, 800);
+  const handleAnswer = (index: number) => {
+    if (index === quizQuestions[currentQuestion].correct) {
+      setScore(score + 1);
+    }
+
+    if (currentQuestion + 1 < quizQuestions.length) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      setShowResult(true);
+    }
+  };
+
+  const saveToArchive = () => {
+    if (!studentName) return alert("من فضلك اكتب اسمك لحفظ النتيجة");
+    const newEntry = { name: studentName, score: (score / 10) * 100 };
+    const updatedArchive = [newEntry, ...archive].slice(0, 10); // حفظ آخر 10 نتائج
+    setArchive(updatedArchive);
+    localStorage.setItem('sehrAlByanResults', JSON.stringify(updatedArchive));
+    alert("تم حفظ درجتك في أرشيف المتفوقين");
   };
 
   return (
     <main className="min-h-screen bg-[#FDFCFB] text-[#2D241E] selection:bg-[#C5A059] selection:text-white scroll-smooth" dir="rtl">
       
-      {/* 1. Floating WhatsApp Button */}
-      <a 
-        href={`https://wa.me/${phoneNumber}`} 
-        target="_blank" rel="noreferrer"
-        className="fixed bottom-6 left-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
-      >
-        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.483 8.413-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.499-5.688-1.447l-6.308 1.654zm6.757-3.391l.365.217c1.4.832 3.02 1.272 4.673 1.273 4.881 0 8.854-3.973 8.858-8.854.002-2.363-.92-4.585-2.595-6.26s-3.896-2.597-6.259-2.599c-4.882 0-8.854 3.974-8.858 8.855-.001 1.758.515 3.467 1.488 4.953l.238.365-1.104 4.032 4.194-1.09z"/></svg>
-      </a>
-
-      {/* 2. Navigation */}
-      <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 py-4 px-6 flex justify-between items-center">
-        <div className="font-amiri text-2xl font-bold text-[#C5A059]">سحر البيان</div>
-        <div className="hidden md:flex gap-8 font-cairo text-sm font-bold">
-          <a href="#" className="hover:text-[#C5A059] transition-colors">الرئيسية</a>
-          <a href="#about" className="hover:text-[#C5A059] transition-colors">عن المعلم</a>
-          <a href="#booking" className="px-4 py-2 bg-[#C5A059] text-white rounded-lg">حجز موعد</a>
-        </div>
-      </nav>
-
-      {/* 3. Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 text-center">
-        <div className="max-w-4xl mx-auto relative">
-          <span className="font-amiri text-lg md:text-xl text-[#C5A059] mb-4 block">﷽</span>
-          <h1 className="font-amiri text-6xl md:text-8xl font-black mb-6 text-[#1a1a1a]">منصة سحر البيان</h1>
-          <p className="font-cairo text-xl text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-            "نحن لا ندرّس القواعد، بل نغرس في قلب الطالب حُب لغة القرآن"
+      {/* 1. مقدمة الحديث الشريف */}
+      <section className="pt-24 pb-12 px-4 text-center">
+        <div className="max-w-4xl mx-auto">
+          <p className="font-amiri text-2xl md:text-3xl text-[#C5A059] leading-relaxed mb-6 border-b border-[#C5A059]/20 pb-6 animate-fade-in">
+            قَالَ رَسُولُ اللَّهِ ﷺ: <br className="md:hidden" />
+            <span className="font-bold italic">" مَنْ سَلَكَ طريقًا يلتمسُ فِيْهِ علمًا سَهَّلَ اللهُ لهُ بِهِ طريقًا إلىٰ الجنَّةِ "</span>
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a href="#booking" className="px-10 py-4 bg-[#1a1a1a] text-white font-cairo font-bold rounded-2xl shadow-xl hover:-translate-y-1 transition-all">ابدأ الآن</a>
-          </div>
+          <h1 className="font-amiri text-7xl md:text-8xl font-black mb-4 text-[#1a1a1a]">سحر البيان</h1>
+          <p className="font-cairo text-xl text-gray-500 mb-10">منصة الأستاذ محمد البطاوي لعلوم اللغة والقرآن</p>
         </div>
       </section>
 
-      {/* 4. About Section */}
-      <section id="about" className="py-20 bg-white border-y border-gray-50">
-        <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
-          <div className="relative">
-            <img 
-              src="/profile.png" 
-              alt="الأستاذ محمد البطاوي" 
-              className="relative rounded-[2.5rem] w-full shadow-2xl"
-            />
-          </div>
-          <div className="text-right space-y-6">
-            <h2 className="font-amiri text-5xl font-bold text-[#1a1a1a]">الأستاذ محمد البطاوي</h2>
-            <div className="h-1.5 w-24 bg-[#C5A059] rounded-full"></div>
-            <p className="font-cairo text-gray-600 text-lg leading-[2]">
-              خريج <span className="text-[#1a1a1a] font-bold">جامعة الأزهر الشريف</span>، مكرّس جهوده لتبسيط العلوم العربية والشرعية.
+      {/* 2. التعريف بالأستاذ */}
+      <section id="about" className="py-16 bg-white shadow-sm border-y border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+          <img src="/profile.png" alt="الأستاذ محمد البطاوي" className="rounded-[3rem] shadow-2xl w-full max-w-md mx-auto" />
+          <div className="text-right">
+            <h2 className="font-amiri text-4xl font-bold mb-6 text-[#1a1a1a]">عن المعلم</h2>
+            <p className="font-cairo text-xl text-[#C5A059] font-bold mb-4">الأستاذ محمد البطاوي</p>
+            <p className="font-cairo text-lg text-gray-600 leading-[2]">
+              حاصل على درجة <span className="text-[#1a1a1a] font-bold">الليسانس في التربية قسم اللغة العربية من رحاب جامعة الأزهر الشريف</span>. 
+              نعمل على غرس حب اللغة العربية والقرآن الكريم في نفوس أبنائنا بأسلوب تربوي يجمع بين الحداثة والأصالة.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 5. سلسلة الذهب */}
-      <section className="py-24 bg-[#1a1a1a] text-white">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <h2 className="font-amiri text-5xl text-[#C5A059] mb-12">سلسلة الذهب</h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            {grammarians.map((name, i) => (
-              <span key={i} className="px-6 py-2 border border-white/10 rounded-xl font-amiri text-lg hover:border-[#C5A059] hover:text-[#C5A059] transition-all cursor-default">
-                {name}
-              </span>
-            ))}
+      {/* 3. قسم الاختبار التفاعلي */}
+      <section className="py-20 px-4 bg-[#f9f7f4]">
+        <div className="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-[3rem] shadow-xl border-t-8 border-[#C5A059]">
+          <h2 className="font-amiri text-4xl text-center mb-8 font-bold text-[#1a1a1a]">اختبر مستواك في النحو</h2>
+          
+          {!quizStarted ? (
+            <div className="text-center">
+              <p className="font-cairo mb-8 text-gray-500 text-lg">اختبار مكون من 10 أسئلة لقياس ملكتك اللغوية.</p>
+              <button onClick={() => setQuizStarted(true)} className="px-12 py-4 bg-[#1a1a1a] text-white font-bold rounded-2xl hover:bg-[#C5A059] transition-all">ابدأ الاختبار الآن</button>
+            </div>
+          ) : !showResult ? (
+            <div>
+              <div className="flex justify-between items-center mb-8">
+                <span className="font-cairo text-[#C5A059] font-bold">السؤال {currentQuestion + 1} من 10</span>
+                <div className="h-2 w-32 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-[#C5A059] transition-all" style={{ width: `${(currentQuestion + 1) * 10}%` }}></div>
+                </div>
+              </div>
+              <h3 className="font-cairo text-xl font-bold mb-8">{quizQuestions[currentQuestion].q}</h3>
+              <div className="grid gap-4">
+                {quizQuestions[currentQuestion].options.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(i)} className="p-4 text-right border-2 border-gray-100 rounded-2xl hover:border-[#C5A059] hover:bg-[#C5A059]/5 transition-all font-cairo">
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center">
+              <h3 className="font-amiri text-4xl mb-4 text-[#C5A059]">انتهى الاختبار!</h3>
+              <p className="font-cairo text-2xl mb-8">درجتك هي: <span className="font-bold text-3xl">{(score/10)*10} من 10</span></p>
+              
+              <div className="space-y-4 max-w-sm mx-auto">
+                <input 
+                  type="text" 
+                  placeholder="اكتب اسمك لتسجيل النتيجة" 
+                  className="w-full p-4 border rounded-2xl text-center outline-none focus:ring-2 ring-[#C5A059]"
+                  onChange={(e) => setStudentName(e.target.value)}
+                />
+                <button onClick={saveToArchive} className="w-full py-4 bg-[#C5A059] text-white font-bold rounded-2xl">حفظ النتيجة في الأرشيف</button>
+                <button onClick={() => window.location.reload()} className="w-full py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl">إعادة الاختبار</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 4. أرشيف نتائج الطلاب (لوحة الشرف) */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="font-amiri text-4xl font-bold text-[#1a1a1a]">لوحة شرف المتفوقين</h2>
+            <p className="font-cairo text-gray-400 mt-2">آخر الطلاب الذين اجتازوا الاختبار بنجاح</p>
+          </div>
+          
+          <div className="bg-[#FDFCFB] rounded-[2rem] overflow-hidden border border-gray-100">
+            <table className="w-full text-right border-collapse">
+              <thead>
+                <tr className="bg-[#1a1a1a] text-[#C5A059] font-cairo">
+                  <th className="p-6">اسم الطالب</th>
+                  <th className="p-6">الدرجة</th>
+                  <th className="p-6">التقدير</th>
+                </tr>
+              </thead>
+              <tbody>
+                {archive.length > 0 ? archive.map((entry, i) => (
+                  <tr key={i} className="border-b border-gray-50 hover:bg-[#C5A059]/5 transition-colors font-cairo">
+                    <td className="p-6 font-bold">{entry.name}</td>
+                    <td className="p-6">{entry.score}/100</td>
+                    <td className="p-6">
+                      <span className={`px-4 py-1 rounded-full text-xs ${entry.score >= 80 ? 'bg-green-100 text-green-700' : 'bg-[#C5A059]/10 text-[#C5A059]'}`}>
+                        {entry.score >= 90 ? 'ممتاز' : entry.score >= 70 ? 'جيد جداً' : 'مجتهد'}
+                      </span>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={3} className="p-12 text-center text-gray-400 font-cairo">لا توجد نتائج مسجلة حتى الآن.. كن أول المتفوقين!</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
 
-      {/* 6. Booking Form */}
-      <section id="booking" className="py-24 bg-[#fcfcfc]">
-        <div className="max-w-2xl mx-auto px-4">
-          <div className="bg-white p-10 md:p-16 rounded-[3rem] shadow-2xl border-t-[12px] border-[#C5A059]">
-            <h2 className="font-amiri text-4xl font-bold text-center mb-8">سجل بياناتك للحجز</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <input 
-                required 
-                type="text" 
-                className="w-full p-5 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-[#C5A059] outline-none font-cairo" 
-                placeholder="اسم الطالب..." 
-                onChange={(e) => setFormData({...formData, name: e.target.value})} 
-              />
-              <input 
-                required 
-                type="tel" 
-                className="w-full p-5 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-[#C5A059] outline-none font-cairo text-left" 
-                placeholder="رقم الهاتف" 
-                onChange={(e) => setFormData({...formData, phone: e.target.value})} 
-              />
-              <select 
-                className="w-full p-5 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-[#C5A059] outline-none font-cairo"
-                onChange={(e) => setFormData({...formData, level: e.target.value})}
-              >
-                <option>المرحلة الإعدادية</option>
-                <option>المرحلة الثانوية</option>
-                <option>تحفيظ قرآن كريم</option>
-              </select>
-              <button 
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-5 bg-[#C5A059] text-white font-cairo font-black text-xl rounded-2xl shadow-xl hover:bg-[#A68648] transition-all"
-              >
-                {isSubmitting ? "جاري التحميل..." : "تأكيد طلب الانضمام"}
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <footer className="py-16 bg-white text-center border-t border-gray-100">
-        <h2 className="font-amiri text-3xl font-bold text-[#C5A059] mb-4">سحر البيان</h2>
-        <p className="font-cairo text-gray-400 text-sm italic tracking-widest">© {new Date().getFullYear()} - منصة الأستاذ محمد البطاوي</p>
+      {/* Footer */}
+      <footer className="py-12 text-center border-t border-gray-100">
+        <h3 className="font-amiri text-2xl text-[#C5A059] mb-4">سحر البيان</h3>
+        <p className="font-cairo text-sm text-gray-400">تواصل مباشر: {phoneNumber}</p>
       </footer>
 
     </main>
